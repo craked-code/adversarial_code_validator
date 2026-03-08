@@ -1,5 +1,6 @@
 import subprocess
 import json
+from agents.generator import strip_markdown
 
 class Adversary:
     def __init__(self, model_path):
@@ -8,9 +9,10 @@ class Adversary:
     def attack(self, code, existing_tests):
         prompt = f"Find a breaking test case for this code. Existing tests: {existing_tests}. Return only valid JSON format: {{'input': ..., 'expected': ...}}. Code:\n{code}"
         cmd = ["ollama", "run", self.model_path, prompt]
+        
         try:    
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-            return json.loads(result.stdout.strip())
+            return json.loads(strip_markdown(result.stdout))
         except subprocess.TimeoutExpired:
             print("Adversary: LLM timeout after 30s")
             return None

@@ -1,6 +1,14 @@
 import subprocess #to call a local LLM via command-line interface
 import json #LLM response in text. We need structured data. LLM asked to output in json. This module pasrses the json output.
 
+def strip_markdown(text):
+    lines = text.strip().splitlines() #strip() removes extra whitespace or blanklines, [splitlines() by default splits at newline character putting it in a list]
+    if lines[0].startswith("```"):
+        lines = lines[1 : -1] #using pop would require calling pop twice with 2 positions of beginning and end, which is done in one line by slicing
+        text = "\n".join(lines)
+    return text.replace("'", '"')
+
+
 class Generator:
     def __init__(self, model_path):
         self.model_path = model_path #stores path to the local LLM
@@ -14,10 +22,10 @@ class Generator:
             capture_output=True : captures both stdout and stderr
             text=True : returns in string form instead of bytes
             timeout = 30 : prevents process from hanging indefinitely'''
-            print(f"DEBUG - stdout: {result.stdout}")
-            print(f"DEBUG - stderr: {result.stderr}")
-            print(f"DEBUG - return code: {result.returncode}")
-            return json.loads(result.stdout.strip())
+            #print(f"DEBUG - stdout: {result.stdout}")
+            #print(f"DEBUG - stderr: {result.stderr}")
+            #print(f"DEBUG - return code: {result.returncode}")
+            return json.loads(strip_markdown(result.stdout))
         except subprocess.TimeoutExpired:
             print("Generator: LLM timeout after 30s")
             return []

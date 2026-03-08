@@ -10,7 +10,7 @@ def execute_test(code, test_case):
         '''
         --> runs the code string as python code
         --> stores any function or variable defined by it into namespace, to not conflict with our original code'''
-        func_name = list(namespace.key())[-1] #assuming LLM generated code contains only one function
+        func_name = list(namespace.keys())[-1] #assuming LLM generated code contains only one function
         func = namespace[func_name] #getting the actual callable function by using it as key from namespace dict
 
         test_input = test_case['input']
