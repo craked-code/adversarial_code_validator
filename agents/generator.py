@@ -17,7 +17,7 @@ class Generator:
         prompt = f"Generate 3 test cases for this Python code. Return only valid JSON array format: [{{'input': ..., 'expected': ...}}]. Code:\n{code}" #text prompt that telss LLM exactly what to do
         cmd = ["ollama", "run", self.model_path, prompt] #command that will be passes to the subprocess: So it will execute: ollama run qwen2.5-coder:7b "your prompt"
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, encoding="utf-8")
             '''
             capture_output=True : captures both stdout and stderr
             text=True : returns in string form instead of bytes

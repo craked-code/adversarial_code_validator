@@ -61,9 +61,8 @@ def main(initial_code, model_path, max_iterations=10):
 
 
 if __name__ == "__main__":
-    initial_code = """
-    def add(a, b):
-        return a+b
+    initial_code = """def add(a, b):
+                        return a+b
     """
     model_path = "qwen2.5-coder:7b" #Commands will be: ollama run qwen2.5-coder:7b "prompt"
     result = main(initial_code, model_path)

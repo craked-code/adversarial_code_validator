@@ -11,7 +11,7 @@ class Adversary:
         cmd = ["ollama", "run", self.model_path, prompt]
         
         try:    
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, encoding="utf-8")
             return json.loads(strip_markdown(result.stdout))
         except subprocess.TimeoutExpired:
             print("Adversary: LLM timeout after 30s")
