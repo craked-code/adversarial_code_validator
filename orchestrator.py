@@ -12,6 +12,7 @@ def main(initial_code, model_path, max_iterations=10):
     refiner = Refiner(model_path)
 
     current_code = initial_code
+    all_tests = [] #to collect every test generated across all iterations
     iteration = 0
     consecutive_generator_faliures = 0
     consecutive_adversary_faliures = 0
@@ -30,6 +31,12 @@ def main(initial_code, model_path, max_iterations=10):
             consecutive_generator_faliures = 0
         
         print(f"Generator produced {len(tests)} test(s)")
+        all_tests.extend(tests) #we use extend instead of append because test is already a list
+        '''
+        we do not need to keep track of which test was generated at which iteration
+        the goal of all_tests is to answer one question during convergence — 
+        "does the current code pass every test we have ever seen?"
+        '''
 
         adverserial_tests = adversary.attack(current_code, tests)
         if adverserial_tests is None:
@@ -45,6 +52,7 @@ def main(initial_code, model_path, max_iterations=10):
 
         passed = execute_test(current_code, adverserial_tests)
         print(f"Adversarial test {'PASSED' if passed else 'FAILED'}")
+        all_tests.append(adverserial_tests) #storing adverserial tests irrespective of passed or failed
 
         if passed:
             break
