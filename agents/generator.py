@@ -6,8 +6,42 @@ def strip_markdown(text):
     if lines[0].startswith("```"):
         lines = lines[1 : -1] #using pop would require calling pop twice with 2 positions of beginning and end, which is done in one line by slicing
         text = "\n".join(lines)
+    
     return text.replace("'", '"')
 
+def strip_markdown_json(text):
+    lines = text.strip().splitlines() #strip() removes extra whitespace or blanklines, [splitlines() by default splits at newline character putting it in a list]
+    if lines[0].startswith("```"):
+        lines = lines[1 : -1] #using pop would require calling pop twice with 2 positions of beginning and end, which is done in one line by slicing
+        text = "\n".join(lines)
+    
+    return text.replace("'", '"').replace("True", "true").replace("False", "false").replace("None", "null")
+
+def extract_json(text):
+    text = strip_markdown_json(text)
+    
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    
+    start = text.find("[")
+    end = text.rfind("]")
+    if start != -1 and end != -1:
+        try:
+            return json.loads(text[start:end+1])
+        except json.JSONDecodeError:
+            pass
+    
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1:
+        try:
+            return json.loads(text[start:end+1])
+        except json.JSONDecodeError:
+            pass
+    
+    return None
 
 class Generator:
     def __init__(self, model_path):
@@ -17,7 +51,7 @@ class Generator:
         prompt = f"Generate 3 test cases for this Python code. Return only valid JSON array format: [{{'input': ..., 'expected': ...}}]. Code:\n{code}" #text prompt that telss LLM exactly what to do
         cmd = ["ollama", "run", self.model_path, prompt] #command that will be passes to the subprocess: So it will execute: ollama run qwen2.5-coder:7b "your prompt"
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, encoding="utf-8")
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=120, encoding="utf-8")
             '''
             capture_output=True : captures both stdout and stderr
             text=True : returns in string form instead of bytes
@@ -25,15 +59,16 @@ class Generator:
             #print(f"DEBUG - stdout: {result.stdout}")
             #print(f"DEBUG - stderr: {result.stderr}")
             #print(f"DEBUG - return code: {result.returncode}")
-            return json.loads(strip_markdown(result.stdout))
+            parsed = extract_json(result.stdout)
+            if parsed is None:
+                print("Generator: Invalid JSON from LLM:")
+                print(result.stdout)
+                print("--- End of LLM output ---")
+                return []
+            return parsed
         except subprocess.TimeoutExpired:
-            print("Generator: LLM timeout after 30s")
-            return []
-        except json.JSONDecodeError:
-            print(f"Generator: Invalid JSON from LLM:")
-            print(result.stdout)
-            print("--- End of LLM output ---")
+            print("Generator: LLM timeout after 120s")
             return []
         except Exception as e:
-            print(f"Generator: Unexpecter error: {e}")
+            print(f"Generator: Unexpected error: {e}")
             return[]
