@@ -115,7 +115,7 @@ Results are saved as JSON files in the `experiment_logs/` folder.
 ## Project Structure
  
 ```
-adversarial_code_validator/
+adversarial_validator/
 ├── agents/
 │   ├── adversary.py         # Coverage-guided attack generation
 │   ├── generator.py         # Baseline test case generation
@@ -124,14 +124,11 @@ adversarial_code_validator/
 │   ├── executor.py          # Sandboxed code execution
 │   └── coverage_runner.py   # Branch coverage measurement
 ├── experiment_logs/         # Auto-created; one JSON per run
-├── orchestrator.py          # Entry point and loop controller
-├── benchmark.py             # 10 intentionally buggy Python functions
-├── run_benchmark.py         # Runs all 10 functions under both modes
-├── run_experiment.py        # Interactive terminal tool — paste any function
-├── combine_logs.py          # Aggregates experiment log files
-├── graph.py                 # Visualises benchmark results
-├── logger.py                # Structured JSON logging per run
-└── all_results.json         # Aggregated benchmark output
+├── orchestrator.py          # Main loop coordinating all agents
+├── benchmark.py             # 10 functions with injected bugs
+├── logger.py                # Saves per-iteration results to JSON
+├── run_benchmark.py         # Runs all benchmark functions automatically
+└── run_experiment.py        # Interactive entry point for a single function
 ```
  
 ---
