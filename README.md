@@ -115,16 +115,23 @@ Results are saved as JSON files in the `experiment_logs/` folder.
 ## Project Structure
  
 ```
-├── orchestrator.py       # Main loop coordinating all agents
-├── generator.py          # Generates test cases via LLM
-├── adversary.py          # Finds breaking inputs, optionally coverage-guided
-├── refiner.py            # Fixes code to pass failing tests
-├── executor.py           # Runs tests safely in a sandboxed namespace
-├── coverage_runner.py    # Measures branch coverage using coverage.py
-├── logger.py             # Saves per-iteration results to JSON
-├── benchmark.py          # 10 functions with injected bugs
-├── run_benchmark.py      # Runs all benchmark functions automatically
-└── run_experiment.py     # Interactive entry point for a single function
+adversarial_code_validator/
+├── agents/
+│   ├── adversary.py         # Coverage-guided attack generation
+│   ├── generator.py         # Baseline test case generation
+│   └── refiner.py           # Code rewriting on failure
+├── sandbox/
+│   ├── executor.py          # Sandboxed code execution
+│   └── coverage_runner.py   # Branch coverage measurement
+├── experiment_logs/         # Auto-created; one JSON per run
+├── orchestrator.py          # Entry point and loop controller
+├── benchmark.py             # 10 intentionally buggy Python functions
+├── run_benchmark.py         # Runs all 10 functions under both modes
+├── run_experiment.py        # Interactive terminal tool — paste any function
+├── combine_logs.py          # Aggregates experiment log files
+├── graph.py                 # Visualises benchmark results
+├── logger.py                # Structured JSON logging per run
+└── all_results.json         # Aggregated benchmark output
 ```
  
 ---
